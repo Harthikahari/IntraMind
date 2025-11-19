@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  # IntraMind Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: intramind-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DATABASE_URL=postgresql://intramind:****@postgres:5432/intramind
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - intramind-network
+    volumes:
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: intramind-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=intramind
+      - POSTGRES_USER=intramind
+      - POSTGRES_PASSWORD=****  # Change in production!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - intramind-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intramind"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: intramind-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ****  # Change in production!
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - intramind-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx Reverse Proxy (Optional)
+  nginx:
+    image: nginx:alpine
+    container_name: intramind-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - app
+    networks:
+      - intramind-network
+
+networks:
+  intramind-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:
