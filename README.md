@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧠 IntraMind
+# 🧠 IntraMinds
 
 ### Enterprise-Grade Intelligent Document-Aware Conversational AI Platform
 
@@ -641,10 +641,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Made with ❤️ by the IntraMind Team**
+**Made with ❤️ by Harikrishnan - IntraMinds Team**
 
 ⭐ Star us on GitHub — it helps!
 
-[⬆ back to top](#-intramind)
+[⬆ back to top](#-intraminds)
 
 </div>
